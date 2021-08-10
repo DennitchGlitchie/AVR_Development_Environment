@@ -2,40 +2,36 @@
 #include <avr/interrupt.h>
 #include <avr/cpufunc.h>
 #include <string.h>
-
 #include <stdlib.h>
-
 
 #define F_CPU_david 16000000
 #define BAUD 9600
 #define BRC ((F_CPU_david/16/BAUD)-1)
 #define TX_BUFFER_SIZE 128
 
-// Use stty -F /dev/ttyUSB0 -echo -icanon 0 min 1?
-
-volatile char serialBuffer[TX_BUFFER_SIZE];		// Added volatile here bc I saw it on a forum post 
-volatile uint8_t serialReadPos = 0; // global variables don't need to be set to 0
+volatile char serialBuffer[TX_BUFFER_SIZE]; 
+volatile uint8_t serialReadPos = 0; 
 volatile uint8_t serialWritePos = 0;
+volatile uint16_t timerFrequencyGlobal = 65000;
 
-volatile uint16_t timerFrequencyGlobal = 65000; // I think i need to make this volatile
-
-
-uint8_t adc_read();
-void serialWrite(char c[]);
-
+// This function sets up the built in LED to be an output
 void port_init()
 {
 	DDRB |= _BV(PORTB5);
 }
 
+// This function sets up timer1
 void timer1_init()
 {
 	TCCR1B |= (1 << WGM12)|(1 << CS12)|(1 << CS10); // Set up timer with prescaler = 256 (1024) and CTC mode
-	TCNT1 = 0; 					// Initialize compare value
-	OCR1A = 65000;					// Enable compare value with this 16 bit register 
-	TIMSK1 |= (1 << OCIE1A);			// Enable global interrupts
-	sei();
+	TCNT1 = 0; 					// Initialize the incrementing register with 0
+	OCR1A = 65000;					// Set the 16 bit output compare register A
+	TIMSK1 |= (1 << OCIE1A);			// Timer1 output compare A match interrupt is enabled 
+	sei();						// Enable global interrupts
 }
+
+uint8_t adc_read();
+void serialWrite(char c[]);
 
 void ADC_init()
 {
