@@ -16,3 +16,6 @@ opost -olcuc -ocrnl onlcr -onocr -onlret -ofill -ofdel nl0 cr0 tab0 bs0 vt0 ff0
 isig icanon iexten echo echoe echok -echonl -noflsh -xcase -tostop -echoprt echoctl echoke -flusho -extproc
 
 cat /dev/ttyUSB0 #this results in hello hello hello (with newlines)
+
+# Found this written in my code as a note. Worth trying:
+// Use stty -F /dev/ttyUSB0 -echo -icanon 0 min 1?
